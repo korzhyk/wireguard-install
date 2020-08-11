@@ -29,6 +29,12 @@ chmod +x wireguard-install.sh
 ./wireguard-install.sh
 ```
 
+You can pass `AUTO=yes` as enviromental variable to run this script in automatic mode.
+
+```bash
+AUTO=yes ./wireguard-install.sh
+```
+
 It will install WireGuard (kernel module and tools) on the server, configure it, create a systemd service and a client configuration file.
 
 Run the script again to add or remove clients!

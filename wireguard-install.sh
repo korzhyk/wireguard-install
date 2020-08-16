@@ -51,6 +51,7 @@ function checkOS() {
 		source /etc/os-release
 		OS="${ID}"
 	elif [[ -e /etc/centos-release ]]; then
+		source /etc/os-release
 		OS=centos
 	elif [[ -e /etc/arch-release ]]; then
 		OS=arch
@@ -147,6 +148,10 @@ function installWireGuard() {
 		fi
 		dnf install -y wireguard-tools iptables qrencode
 	elif [[ ${OS} == 'centos' ]]; then
+		if [[ ${VERSION_ID} -gt 7 ]]; then
+			dnf install -y elrepo-release
+			dnf install -y kmod-wireguard
+		fi
 		curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
 		yum -y install epel-release kernel kernel-devel kernel-headers
 		yum -y install wireguard-dkms wireguard-tools iptables qrencode
@@ -236,7 +241,7 @@ function newClient() {
 	echo "The name must consist of alphanumeric character. It may also include an underscore or a dash."
 
 	until [[ ${CLIENT_NAME} =~ ^[a-zA-Z0-9_-]+$ && ${CLIENT_EXISTS} == '0' ]]; do
-		askUser "Client name: " CLIENT_NAME "client-${DOT_IP}"
+		askUser "Client name: " CLIENT_NAME $DOT_IP
 		CLIENT_EXISTS=$(grep -c -E "^### Client ${CLIENT_NAME}\$" "/etc/wireguard/${SERVER_WG_NIC}.conf")
 
 		if [[ ${CLIENT_EXISTS} == '1' ]]; then
